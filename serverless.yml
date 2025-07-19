@@ -63,3 +63,12 @@ functions:
       - httpApi:
           path: /meals/{mealId}
           method: GET
+
+resources:
+  Resources:
+    UploadsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: s3-bucket-food-diary
+
+        
