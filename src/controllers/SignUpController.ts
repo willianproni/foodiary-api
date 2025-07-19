@@ -6,6 +6,7 @@ import { usersTable } from "../db/schema";
 import { HttpRequest, HttpResponse } from "../types/Http";
 import { badRequest, conflict, created } from "../utils/http";
 import { hash } from "bcryptjs";
+import { calculateGoals } from "../lib/calculateGoals";
 
 const schema = z.object({
   goal: z.enum(["lose", "maintain", "gain"]),
@@ -44,7 +45,16 @@ export class SingUpController {
 
     const { account, ...rest } = data;
 
-    const hashedPassword = await hash(account.password, 12)
+    const goals = calculateGoals({
+      activityLevel: rest.activityLevel,
+      birthDate: new Date(rest.birthDate),
+      gender: rest.gender,
+      goal: rest.goal,
+      height: rest.height,
+      weight: rest.weight,
+    });
+
+    const hashedPassword = await hash(account.password, 12);
 
     const [user] = await db
       .insert(usersTable)
@@ -52,10 +62,7 @@ export class SingUpController {
         ...account,
         ...rest,
         password: hashedPassword,
-        calories: 0,
-        carbohydrates: 0,
-        fats: 0,
-        proteins: 0,
+        ...goals,
       })
       .returning({
         id: usersTable.id,
