@@ -69,6 +69,13 @@ functions:
           path: /meals
           method: GET
 
+  getMealById:
+    handler: src/functions/getMealById.handler
+    events:
+      - httpApi:
+          path: /meals/{mealId}
+          method: GET
+
   fileUploadedEvent:
     handler: src/functions/fileUploadedEvent.handler
     events:
@@ -78,12 +85,12 @@ functions:
           existing: true
           forceDeploy: true
 
-  getMealById:
-    handler: src/functions/getMealById.handler
+  processMeal:
+    handler: src/functions/processMeal.handler
     events:
-      - httpApi:
-          path: /meals/{mealId}
-          method: GET
+      - sqs:
+          arn: !GetAtt MealsQueue.Arn
+          batchSize: 1
 
 resources:
   Resources:
