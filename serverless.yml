@@ -19,7 +19,7 @@ provider:
         - Effect: Allow
           Action:
             - s3:PutObject
-          Resource: !Sub '${UploadsBucket.Arn}/*'
+          Resource: !Sub "${UploadsBucket.Arn}/*"
 
 package:
   individually: true
@@ -87,3 +87,15 @@ resources:
       Type: AWS::S3::Bucket
       Properties:
         BucketName: s3-bucket-food-diary
+    MealsQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: meals-queue
+        VisibilityTimeout: 60
+        RedrivePolicy:
+          maxReceiveCount: 1
+          deadLetterTargetArn: !GetAtt MealsDLQ.Arn
+    MealsDLQ:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: meals-queue-dlq
